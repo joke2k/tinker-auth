@@ -1,0 +1,47 @@
+{
+    "name": "joke2k/tinker-auth",
+    "description": "Laravel package scaffolding for Tinker Auth plugin.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0|^10.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
+        "phpstan/phpstan": "^1.11",
+        "laravel/pint": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Joke2k\\TinkerAuth\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Joke2k\\TinkerAuth\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "./vendor/bin/pest",
+        "test:docker": "docker compose run --rm package-test",
+        "analyse": "./vendor/bin/phpstan analyse",
+        "format": "./vendor/bin/pint"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Joke2k\\TinkerAuth\\TinkerAuthServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
