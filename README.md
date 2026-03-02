@@ -1,20 +1,108 @@
 # Tinker Auth
 
-Laravel package scaffold for `joke2k/tinker-auth`.
+Tinker Auth is a Laravel package that enforces or enables user authentication for `php artisan tinker` sessions and provides a reusable command trait for command-level user context.
+
+## Features
+
+- Tinker session auth modes:
+  - `strict`: authentication is required.
+  - `optional`: authentication is available but can be skipped.
+  - `disabled`: no authentication is performed.
+- Per-environment behavior through `.env` values.
+- Authenticated Tinker session sets the active Laravel user (`Auth::user()`).
+- Reusable command trait that adds:
+  - `--user|-u`: run command as a specific user.
+  - `--auth-mode`: per-command mode override (`strict|optional`).
 
 ## Requirements
 
 - PHP 8.2+
+- Laravel 11 or 12
 - Composer
 - Docker + Docker Compose (for containerized tests)
 
-## Local Installation
+## Installation
 
 ```bash
-composer install
+composer require --dev joke2k/tinker-auth
+php artisan tinker-auth:install
 ```
 
-## Run Tests
+## Configuration
+
+Published config: `config/tinker-auth.php`
+
+```php
+return [
+    'mode' => env('TINKER_AUTH_MODE', 'optional'),
+    'username_column' => env('TINKER_AUTH_USERNAME_COLUMN', 'email'),
+    'guard' => env('TINKER_AUTH_GUARD'),
+    'max_attempts' => (int) env('TINKER_AUTH_MAX_ATTEMPTS', 3),
+    'prompt' => [
+        'login_label' => 'Login',
+        'password_label' => 'Password',
+    ],
+    'command_trait' => [
+        'default_mode' => env('TINKER_AUTH_COMMAND_DEFAULT_MODE', 'strict'),
+        'allow_mode_override' => (bool) env('TINKER_AUTH_COMMAND_ALLOW_MODE_OVERRIDE', true),
+    ],
+];
+```
+
+Example per-environment overrides:
+
+```env
+# .env.local
+TINKER_AUTH_MODE=optional
+
+# .env.production
+TINKER_AUTH_MODE=strict
+```
+
+## Tinker Behavior
+
+- `strict`
+  - Interactive: prompts for login + password.
+  - Non-interactive: exits with failure.
+- `optional`
+  - Interactive: allows authentication or skip.
+  - Non-interactive: continues without auth.
+- `disabled`
+  - Always continues without auth.
+
+## Command Trait Usage
+
+Use the trait in any custom Artisan command:
+
+```php
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use Joke2k\TinkerAuth\Concerns\InteractsWithTinkerAuth;
+
+class RebuildSearchIndex extends Command
+{
+    use InteractsWithTinkerAuth;
+
+    protected $signature = 'search:rebuild';
+
+    public function handle(): int
+    {
+        $this->info('Running as '.(auth()->user()?->email ?? 'guest'));
+
+        return self::SUCCESS;
+    }
+}
+```
+
+Available options:
+
+- `--user|-u` user identifier (matching `username_column`).
+- `--auth-mode=strict|optional` command-level auth mode override.
+
+## Testing
 
 Local:
 
@@ -22,23 +110,14 @@ Local:
 composer test
 ```
 
-With Docker:
+Docker:
 
 ```bash
 docker compose run --rm package-test
 ```
 
-Or via Composer script:
+Composer script:
 
 ```bash
 composer test:docker
 ```
-
-## Structure
-
-- `src/TinkerAuthServiceProvider.php`: package service provider.
-- `src/Commands/InstallCommand.php`: `tinker-auth:install` command.
-- `config/tinker-auth.php`: publishable configuration.
-- `database/migrations/*.stub`: publishable migration stub.
-- `routes/web.php`: demo route (`/tinker-auth/health`).
-- `tests/`: Pest + Orchestra Testbench tests.
