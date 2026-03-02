@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Joke2k\TinkerAuth;
 
-use Illuminate\Console\Events\ArtisanStarting;
-use Illuminate\Support\Facades\Event;
+use Illuminate\Console\Events\CommandStarting;
+use Illuminate\Console\Application as ArtisanApplication;
 use Illuminate\Support\ServiceProvider;
 use Joke2k\TinkerAuth\Commands\InstallCommand;
 use Joke2k\TinkerAuth\Commands\TinkerCommand;
@@ -22,7 +22,10 @@ class TinkerAuthServiceProvider extends ServiceProvider
         $this->app->singleton(UserResolver::class);
         $this->app->singleton(CredentialValidator::class);
         $this->app->singleton(TinkerAuthManager::class);
+        $this->app->singleton(TinkerSessionAuthenticator::class);
         $this->app->singleton(TinkerAuth::class);
+
+        $this->overrideTinkerCommandBinding();
     }
 
     public function boot(): void
@@ -37,12 +40,35 @@ class TinkerAuthServiceProvider extends ServiceProvider
             ]);
 
             if (class_exists(BaseTinkerCommand::class)) {
-                Event::listen(ArtisanStarting::class, function ($event): void {
-                    $event->artisan->resolveCommands([
-                        TinkerCommand::class,
-                    ]);
+                $this->app->booted(function (): void {
+                    // Register this callback after all providers have registered their console callbacks.
+                    ArtisanApplication::starting(function ($artisan): void {
+                        $artisan->add($this->app->make(TinkerCommand::class));
+                    });
+                });
+
+                $this->commands([
+                    'command.tinker',
+                ]);
+
+                $this->app['events']->listen(CommandStarting::class, function (CommandStarting $event): void {
+                    if ($event->command !== 'tinker') {
+                        return;
+                    }
+
+                    $this->app->make(TinkerSessionAuthenticator::class)->authenticate($event->input, $event->output);
                 });
             }
         }
+    }
+
+    private function overrideTinkerCommandBinding(): void
+    {
+        if (! class_exists(BaseTinkerCommand::class)) {
+            return;
+        }
+
+        // Force the canonical tinker binding to resolve to our command.
+        $this->app->singleton('command.tinker', fn ($app): TinkerCommand => $app->make(TinkerCommand::class));
     }
 }
