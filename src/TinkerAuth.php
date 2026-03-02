@@ -4,10 +4,21 @@ declare(strict_types=1);
 
 namespace Joke2k\TinkerAuth;
 
+use Illuminate\Contracts\Auth\Authenticatable;
+
 class TinkerAuth
 {
-    public function enabled(): bool
+    public function __construct(private readonly TinkerAuthManager $manager)
     {
-        return (bool) config('tinker-auth.enabled', true);
+    }
+
+    public function mode(?string $override = null, bool $allowDisabled = true): string
+    {
+        return $this->manager->resolveMode($override, $allowDisabled);
+    }
+
+    public function actingUser(): ?Authenticatable
+    {
+        return $this->manager->guard()->user();
     }
 }

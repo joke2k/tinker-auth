@@ -2,13 +2,6 @@
 
 declare(strict_types=1);
 
-it('returns package health information', function (): void {
-    $response = $this->get('/tinker-auth/health');
-
-    $response
-        ->assertOk()
-        ->assertJson([
-            'package' => 'tinker-auth',
-            'status' => 'ok',
-        ]);
+it('loads the default auth mode', function (): void {
+    expect(config('tinker-auth.mode'))->toBe('optional');
 });

@@ -4,8 +4,14 @@ declare(strict_types=1);
 
 namespace Joke2k\TinkerAuth;
 
+use Illuminate\Console\Events\ArtisanStarting;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Joke2k\TinkerAuth\Commands\InstallCommand;
+use Joke2k\TinkerAuth\Commands\TinkerCommand;
+use Joke2k\TinkerAuth\Support\CredentialValidator;
+use Joke2k\TinkerAuth\Support\UserResolver;
+use Laravel\Tinker\Console\TinkerCommand as BaseTinkerCommand;
 
 class TinkerAuthServiceProvider extends ServiceProvider
 {
@@ -13,7 +19,10 @@ class TinkerAuthServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../config/tinker-auth.php', 'tinker-auth');
 
-        $this->app->singleton(TinkerAuth::class, static fn (): TinkerAuth => new TinkerAuth());
+        $this->app->singleton(UserResolver::class);
+        $this->app->singleton(CredentialValidator::class);
+        $this->app->singleton(TinkerAuthManager::class);
+        $this->app->singleton(TinkerAuth::class);
     }
 
     public function boot(): void
@@ -27,11 +36,13 @@ class TinkerAuthServiceProvider extends ServiceProvider
                 InstallCommand::class,
             ]);
 
-            $this->publishes([
-                __DIR__.'/../database/migrations/create_tinker_auth_tables.php.stub' => database_path('migrations/'.date('Y_m_d_His').'_create_tinker_auth_tables.php'),
-            ], 'tinker-auth-migrations');
+            if (class_exists(BaseTinkerCommand::class)) {
+                Event::listen(ArtisanStarting::class, function ($event): void {
+                    $event->artisan->resolveCommands([
+                        TinkerCommand::class,
+                    ]);
+                });
+            }
         }
-
-        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
     }
 }

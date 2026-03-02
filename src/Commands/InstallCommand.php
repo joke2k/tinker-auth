@@ -21,9 +21,8 @@ class InstallCommand extends Command
         }
 
         $this->call('vendor:publish', array_merge($params, ['--tag' => 'tinker-auth-config']));
-        $this->call('vendor:publish', array_merge($params, ['--tag' => 'tinker-auth-migrations']));
 
-        $this->info('Tinker Auth scaffolding published successfully.');
+        $this->info('Tinker Auth configuration published successfully.');
 
         return self::SUCCESS;
     }
