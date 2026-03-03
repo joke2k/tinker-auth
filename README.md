@@ -77,7 +77,7 @@ TINKER_AUTH_AUTOCOMPLETE_USERS=false
 
 ## Tinker Behavior
 
-- `TINKER_AUTH_MODEstrict`
+- `TINKER_AUTH_MODE=strict`
   - Interactive: prompts for login + password.
   - Non-interactive: exits with failure.
 - `TINKER_AUTH_MODE=optional`
