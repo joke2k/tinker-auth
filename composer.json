@@ -12,7 +12,8 @@
         "pestphp/pest": "^3.0",
         "pestphp/pest-plugin-laravel": "^3.0",
         "phpstan/phpstan": "^1.11",
-        "laravel/pint": "^1.0"
+        "laravel/pint": "^1.0",
+        "rector/rector": "^1.2"
     },
     "autoload": {
         "psr-4": {
@@ -28,6 +29,8 @@
         "test": "./vendor/bin/pest",
         "test:docker": "docker compose run --rm package-test",
         "analyse": "./vendor/bin/phpstan analyse",
+        "rector": "./vendor/bin/rector process",
+        "rector:dry": "./vendor/bin/rector process --dry-run",
         "format": "./vendor/bin/pint"
     },
     "extra": {

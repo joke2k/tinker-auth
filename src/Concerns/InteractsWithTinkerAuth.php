@@ -174,7 +174,7 @@ trait InteractsWithTinkerAuth
     protected function promptTinkerAuthPassword(): string
     {
         if (function_exists('Laravel\\Prompts\\password')) {
-            return (string) \Laravel\Prompts\password(
+            return \Laravel\Prompts\password(
                 label: (string) config('tinker-auth.prompt.password_label', 'Password'),
                 required: true,
             );
@@ -191,7 +191,7 @@ trait InteractsWithTinkerAuth
             $options = app(TinkerAuthManager::class)->suggestUserIdentifiers();
 
             if ($options !== []) {
-                return trim((string) \Laravel\Prompts\suggest(
+                return trim(\Laravel\Prompts\suggest(
                     label: (string) config('tinker-auth.prompt.login_label', 'Login'),
                     options: $options,
                     required: true,
@@ -200,7 +200,7 @@ trait InteractsWithTinkerAuth
         }
 
         if (function_exists('Laravel\\Prompts\\text')) {
-            return trim((string) \Laravel\Prompts\text(
+            return trim(\Laravel\Prompts\text(
                 label: (string) config('tinker-auth.prompt.login_label', 'Login'),
                 required: true,
             ));

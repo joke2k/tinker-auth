@@ -21,7 +21,7 @@ class TinkerCommand extends BaseTinkerCommand
 
     public function handle()
     {
-        if ($this->authInitializationException !== null) {
+        if ($this->authInitializationException instanceof \Illuminate\Console\ManuallyFailedException) {
             $this->error($this->authInitializationException->getMessage());
 
             return self::FAILURE;
@@ -39,8 +39,8 @@ class TinkerCommand extends BaseTinkerCommand
     {
         try {
             $this->initializeInteractsWithTinkerAuth($input, $output);
-        } catch (ManuallyFailedException $exception) {
-            $this->authInitializationException = $exception;
+        } catch (ManuallyFailedException $manuallyFailedException) {
+            $this->authInitializationException = $manuallyFailedException;
         }
     }
 

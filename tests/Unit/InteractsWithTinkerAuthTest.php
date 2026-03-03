@@ -25,7 +25,7 @@ it('fails in strict mode when user is missing on non-interactive input', functio
     $input = new ArrayInput([]);
     $input->setInteractive(false);
 
-    expect(fn () => $command->run($input, new BufferedOutput()))
+    expect(fn (): int => $command->run($input, new BufferedOutput()))
         ->toThrow(ManuallyFailedException::class, 'requires --user when the command is non-interactive');
 });
 
@@ -80,7 +80,7 @@ it('fails authentication when --user is provided with wrong password', function 
     $input = new ArrayInput(['--user' => 'runner@example.com']);
     $input->setInteractive(false);
 
-    expect(fn () => $command->run($input, new BufferedOutput()))
+    expect(fn (): int => $command->run($input, new BufferedOutput()))
         ->toThrow(ManuallyFailedException::class, 'Invalid credentials for the provided user.');
 });
 
@@ -91,6 +91,6 @@ it('fails when both strict and optional attributes are present', function (): vo
     $input = new ArrayInput([]);
     $input->setInteractive(false);
 
-    expect(fn () => $command->run($input, new BufferedOutput()))
+    expect(fn (): int => $command->run($input, new BufferedOutput()))
         ->toThrow(ManuallyFailedException::class, 'cannot declare both TinkerAuthStrict and TinkerAuthOptional');
 });

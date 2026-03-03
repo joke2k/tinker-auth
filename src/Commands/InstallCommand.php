@@ -14,7 +14,7 @@ class InstallCommand extends Command
 
     public function handle(): int
     {
-        $params = ['--provider' => 'Joke2k\\TinkerAuth\\TinkerAuthServiceProvider'];
+        $params = ['--provider' => \Joke2k\TinkerAuth\TinkerAuthServiceProvider::class];
 
         if ((bool) $this->option('force')) {
             $params['--force'] = true;

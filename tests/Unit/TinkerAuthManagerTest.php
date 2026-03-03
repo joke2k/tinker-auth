@@ -34,7 +34,7 @@ it('sets the acting user on the configured guard', function (): void {
     $manager = app(TinkerAuthManager::class);
     $manager->setActingUser($user);
 
-    expect(auth()->user()?->getAuthIdentifier())->toBe($user->getAuthIdentifier());
+    expect(auth()->guard()->user()?->getAuthIdentifier())->toBe($user->getAuthIdentifier());
 });
 
 it('returns suggested user identifiers for autocomplete', function (): void {

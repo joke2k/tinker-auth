@@ -16,7 +16,7 @@ it('does not prompt again when user is already authenticated', function (): void
         'password' => Hash::make('secret-pass'),
     ]);
 
-    auth()->setUser($user);
+    auth()->guard()->setUser($user);
 
     $command = new class extends TinkerCommand {
         protected function runTinker(): int

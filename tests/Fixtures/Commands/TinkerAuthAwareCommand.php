@@ -19,7 +19,7 @@ class TinkerAuthAwareCommand extends Command
 
     public function handle(): int
     {
-        $this->line((string) (auth()->user()?->email ?? 'guest'));
+        $this->line((string) (auth()->guard()->user()?->email ?? 'guest'));
 
         return self::SUCCESS;
     }
