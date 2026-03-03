@@ -122,6 +122,20 @@ trait InteractsWithTinkerAuth
 
     protected function promptTinkerAuthLogin(): string
     {
+        if ((bool) config('tinker-auth.prompt.autocomplete_users', false)
+            && function_exists('Laravel\\Prompts\\suggest')
+        ) {
+            $options = app(TinkerAuthManager::class)->suggestUserIdentifiers();
+
+            if ($options !== []) {
+                return trim((string) \Laravel\Prompts\suggest(
+                    label: (string) config('tinker-auth.prompt.login_label', 'Login'),
+                    options: $options,
+                    required: true,
+                ));
+            }
+        }
+
         if (function_exists('Laravel\\Prompts\\text')) {
             return trim((string) \Laravel\Prompts\text(
                 label: (string) config('tinker-auth.prompt.login_label', 'Login'),

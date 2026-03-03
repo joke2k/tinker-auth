@@ -16,6 +16,8 @@ return [
         'password_label' => 'Password',
         'strict_message' => 'Authentication is required to start Tinker in strict mode.',
         'optional_message' => 'Press enter to continue without authentication.',
+        'autocomplete_users' => (bool) env('TINKER_AUTH_AUTOCOMPLETE_USERS', false),
+        'autocomplete_limit' => (int) env('TINKER_AUTH_AUTOCOMPLETE_LIMIT', 5),
     ],
 
     'command_trait' => [

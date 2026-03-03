@@ -58,6 +58,16 @@ class TinkerAuthManager
         return $this->userResolver->findByIdentifier($identifier);
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public function suggestUserIdentifiers(): array
+    {
+        $limit = (int) config('tinker-auth.prompt.autocomplete_limit', 20);
+
+        return $this->userResolver->suggestIdentifiers($limit);
+    }
+
     public function attemptLogin(string $identifier, string $password): ?Authenticatable
     {
         $user = $this->findUser($identifier);

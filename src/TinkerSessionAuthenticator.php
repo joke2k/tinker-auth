@@ -118,6 +118,20 @@ class TinkerSessionAuthenticator
         QuestionHelper $helper,
         string $label
     ): string {
+        if ((bool) config('tinker-auth.prompt.autocomplete_users', false)
+            && function_exists('Laravel\\Prompts\\suggest')
+        ) {
+            $options = $this->authManager->suggestUserIdentifiers();
+
+            if ($options !== []) {
+                return trim((string) \Laravel\Prompts\suggest(
+                    label: $label,
+                    options: $options,
+                    required: false,
+                ));
+            }
+        }
+
         if (function_exists('Laravel\\Prompts\\text')) {
             return trim((string) \Laravel\Prompts\text(label: $label, required: false));
         }

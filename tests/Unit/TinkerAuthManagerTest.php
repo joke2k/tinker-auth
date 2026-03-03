@@ -36,3 +36,20 @@ it('sets the acting user on the configured guard', function (): void {
 
     expect(auth()->user()?->getAuthIdentifier())->toBe($user->getAuthIdentifier());
 });
+
+it('returns suggested user identifiers for autocomplete', function (): void {
+    User::query()->create([
+        'email' => 'alpha@example.com',
+        'password' => Hash::make('password-123'),
+    ]);
+    User::query()->create([
+        'email' => 'beta@example.com',
+        'password' => Hash::make('password-456'),
+    ]);
+
+    $manager = app(TinkerAuthManager::class);
+    $suggestions = $manager->suggestUserIdentifiers();
+
+    expect($suggestions)->toContain('alpha@example.com')
+        ->and($suggestions)->toContain('beta@example.com');
+});

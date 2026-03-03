@@ -43,6 +43,8 @@ return [
     'prompt' => [
         'login_label' => 'Login',
         'password_label' => 'Password',
+        'autocomplete_users' => (bool) env('TINKER_AUTH_AUTOCOMPLETE_USERS', false),
+        'autocomplete_limit' => (int) env('TINKER_AUTH_AUTOCOMPLETE_LIMIT', 20),
     ],
     'command_trait' => [
         'default_mode' => env('TINKER_AUTH_COMMAND_DEFAULT_MODE', 'strict'),
@@ -58,6 +60,10 @@ TINKER_AUTH_MODE=optional
 
 # .env.production
 TINKER_AUTH_MODE=strict
+
+# Optional: enable username autocomplete in login prompt
+TINKER_AUTH_AUTOCOMPLETE_USERS=true
+TINKER_AUTH_AUTOCOMPLETE_LIMIT=20
 ```
 
 ## Tinker Behavior
