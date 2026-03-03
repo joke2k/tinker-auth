@@ -16,6 +16,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 trait InteractsWithTinkerAuth
 {
+    protected function tinkerAuthUser(): ?Authenticatable
+    {
+        return app(TinkerAuthManager::class)->guard()->user();
+    }
+
     protected function configure(): void
     {
         parent::configure();

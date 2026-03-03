@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - Laravel package service provider with auto-discovery and config publishing via `tinker-auth:install`.
 - Tinker command override that secures `php artisan tinker` with authentication-aware behavior.
+- `php artisan tinker` now exposes the authenticated user as `$_u` in the shell scope (or `null` when unauthenticated).
 - Tinker auth modes for sessions:
   - `strict` (authentication required)
   - `optional` (authentication can be skipped)

@@ -9,6 +9,7 @@ use InvalidArgumentException;
 use Joke2k\TinkerAuth\Concerns\InteractsWithTinkerAuth;
 use Joke2k\TinkerAuth\TinkerAuthManager;
 use Laravel\Tinker\Console\TinkerCommand as BaseTinkerCommand;
+use Symfony\Component\Console\Input\Input;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -33,7 +34,52 @@ class TinkerCommand extends BaseTinkerCommand
 
     protected function runTinker(): int
     {
-        return (int) parent::handle();
+        $includeFile = $this->injectTinkerAuthUserInclude();
+
+        try {
+            return (int) parent::handle();
+        } finally {
+            if (is_string($includeFile) && is_file($includeFile)) {
+                @unlink($includeFile);
+            }
+        }
+    }
+
+    protected function injectTinkerAuthUserInclude(): ?string
+    {
+        if (! $this->input instanceof Input) {
+            return null;
+        }
+
+        $includes = $this->argument('include');
+
+        if (! is_array($includes)) {
+            return null;
+        }
+
+        $file = tempnam(sys_get_temp_dir(), 'tinker-auth-u-');
+
+        if (! is_string($file)) {
+            return null;
+        }
+
+        $code = <<<'PHP'
+<?php
+$_u = app(\Joke2k\TinkerAuth\TinkerAuth::class)->actingUser();
+PHP;
+
+        if (@file_put_contents($file, $code) === false) {
+            @unlink($file);
+
+            return null;
+        }
+
+        $this->input->setArgument(
+            'include',
+            array_values(array_merge([$file], $includes)),
+        );
+
+        return $file;
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output): void

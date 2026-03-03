@@ -77,18 +77,21 @@ TINKER_AUTH_AUTOCOMPLETE_USERS=false
 
 ## Tinker Behavior
 
-- `strict`
+- `TINKER_AUTH_MODEstrict`
   - Interactive: prompts for login + password.
   - Non-interactive: exits with failure.
-- `optional`
+- `TINKER_AUTH_MODE=optional`
   - Interactive: allows authentication or skip.
   - Non-interactive: continues without auth.
-- `disabled`
+- `TINKER_AUTH_MODE=disabled`
   - Always continues without auth.
 - `--user|-u <identifier>` (on `php artisan tinker`)
   - Uses the identifier as login username.
   - Always prompts for password.
   - Behaves as strict authentication for that run.
+- `$_u` context variable
+  - Contains the authenticated user for the current Tinker session.
+  - Is `null` when no user is authenticated.
 
 ## Command Trait Usage
 
