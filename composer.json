@@ -38,6 +38,7 @@
     },
     "scripts": {
         "test": "./vendor/bin/pest",
+        "test:coverage": "XDEBUG_MODE=coverage ./vendor/bin/pest --coverage",
         "analyse": "./vendor/bin/phpstan analyse --memory-limit=512M",
         "rector": "./vendor/bin/rector process",
         "rector:dry": "./vendor/bin/rector process --dry-run",
