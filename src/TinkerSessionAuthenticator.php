@@ -20,6 +20,10 @@ class TinkerSessionAuthenticator
 
     public function authenticate(InputInterface $input, OutputInterface $output): void
     {
+        if ($this->authManager->guard()->user() !== null) {
+            return;
+        }
+
         $mode = $this->authManager->resolveMode();
         $identifierFromOption = $this->resolveUserOption($input);
 
