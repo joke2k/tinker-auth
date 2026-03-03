@@ -49,8 +49,10 @@ return [
     'prompt' => [
         'login_label' => 'Login',
         'password_label' => 'Password',
+        'strict_message' => 'Authentication is required to start Tinker in strict mode.',
+        'optional_message' => 'Press enter to continue without authentication.',
         'autocomplete_users' => (bool) env('TINKER_AUTH_AUTOCOMPLETE_USERS', false),
-        'autocomplete_limit' => (int) env('TINKER_AUTH_AUTOCOMPLETE_LIMIT', 20),
+        'autocomplete_limit' => (int) env('TINKER_AUTH_AUTOCOMPLETE_LIMIT', 5),
     ],
     'command_trait' => [
         'default_mode' => env('TINKER_AUTH_COMMAND_DEFAULT_MODE', 'strict'),
@@ -69,7 +71,7 @@ TINKER_AUTH_MODE=strict
 
 # Optional: enable username autocomplete in login prompt
 TINKER_AUTH_AUTOCOMPLETE_USERS=true
-TINKER_AUTH_AUTOCOMPLETE_LIMIT=20
+TINKER_AUTH_AUTOCOMPLETE_LIMIT=5
 ```
 
 ## Tinker Behavior

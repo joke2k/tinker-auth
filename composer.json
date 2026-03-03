@@ -1,8 +1,15 @@
 {
     "name": "joke2k/tinker-auth",
-    "description": "Laravel package scaffolding for Tinker Auth plugin.",
+    "description": "Authenticated sessions for Laravel Tinker with strict/optional modes and command-level auth trait.",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "laravel",
+        "tinker",
+        "artisan",
+        "auth",
+        "security"
+    ],
     "require": {
         "php": "^8.2",
         "illuminate/support": "^11.0|^12.0",
