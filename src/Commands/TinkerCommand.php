@@ -33,6 +33,10 @@ class TinkerCommand extends BaseTinkerCommand
 
     protected function authenticateSession(): int
     {
+        if ($this->authManager->guard()->user() !== null) {
+            return self::SUCCESS;
+        }
+
         $mode = $this->authManager->resolveMode();
 
         if ($mode === 'disabled') {
