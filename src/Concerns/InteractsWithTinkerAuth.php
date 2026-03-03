@@ -80,7 +80,7 @@ trait InteractsWithTinkerAuth
         $attempts = max(1, (int) config('tinker-auth.max_attempts', 3));
 
         for ($i = 1; $i <= $attempts; $i++) {
-            $identifier = $this->promptTinkerAuthLogin();
+            $identifier = $this->promptTinkerAuthLogin($mode);
 
             if ($identifier === '') {
                 if ($mode === 'optional') {
@@ -184,8 +184,10 @@ trait InteractsWithTinkerAuth
         return (string) $this->secret((string) config('tinker-auth.prompt.password_label', 'Password'));
     }
 
-    protected function promptTinkerAuthLogin(): string
+    protected function promptTinkerAuthLogin(string $mode): string
     {
+        $required = $mode === 'strict';
+
         if ((bool) config('tinker-auth.prompt.autocomplete_users', false)
             && function_exists('Laravel\\Prompts\\suggest')
         ) {
@@ -195,7 +197,7 @@ trait InteractsWithTinkerAuth
                 return trim(\Laravel\Prompts\suggest(
                     label: (string) config('tinker-auth.prompt.login_label', 'Login'),
                     options: $options,
-                    required: true,
+                    required: $required,
                 ));
             }
         }
@@ -203,7 +205,7 @@ trait InteractsWithTinkerAuth
         if (function_exists('Laravel\\Prompts\\text')) {
             return trim(\Laravel\Prompts\text(
                 label: (string) config('tinker-auth.prompt.login_label', 'Login'),
-                required: true,
+                required: $required,
             ));
         }
 
