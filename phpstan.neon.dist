@@ -7,10 +7,6 @@ parameters:
         - config
         - src
         - tests
-    excludePaths:
-        analyse:
-            - vendor/*
-            - .plans/*
     parallel:
         maximumNumberOfProcesses: 1
 
