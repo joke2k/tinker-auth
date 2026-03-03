@@ -22,7 +22,7 @@ Tinker Auth is a Laravel package that enforces or enables user authentication fo
 - Laravel 11 or 12
 - `illuminate/support`
 - `laravel/tinker`
-- `laravel/promot` (optional)
+- `laravel/prompts` (optional)
 
 ## Installation
 
