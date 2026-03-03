@@ -24,16 +24,7 @@ trait InteractsWithTinkerAuth
                 'user',
                 'u',
                 InputOption::VALUE_OPTIONAL,
-                'Run the command as the given user identifier'
-            ));
-        }
-
-        if ((bool) config('tinker-auth.command_trait.allow_mode_override', true) && ! $definition->hasOption('auth-mode')) {
-            $definition->addOption(new InputOption(
-                'auth-mode',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'Override auth mode for this command (strict|optional)'
+                'Use this user identifier as login and prompt for password'
             ));
         }
     }
@@ -48,37 +39,67 @@ trait InteractsWithTinkerAuth
     protected function initializeTinkerAuth(InputInterface $input): ?Authenticatable
     {
         $manager = app(TinkerAuthManager::class);
-
-        $modeOverride = $input->hasOption('auth-mode')
-            ? $this->normalizeInputOption($input->getOption('auth-mode'))
-            : null;
-
-        $mode = $manager->resolveCommandMode($modeOverride);
         $identifier = $this->normalizeInputOption($input->getOption('user'));
+        $mode = $manager->resolveCommandMode($this->resolveTinkerAuthMode());
 
-        if ($identifier === null) {
-            if ($mode === 'optional') {
-                return null;
-            }
+        if ($identifier !== null) {
+            $user = $this->authenticateByCredentials($manager, $identifier);
 
-            if (! $input->isInteractive()) {
-                throw new RuntimeException('Tinker Auth strict mode requires --user when the command is non-interactive.');
-            }
+            $manager->setActingUser($user);
 
-            $identifier = trim((string) $this->ask((string) config('tinker-auth.prompt.login_label', 'Login')));
-
-            if ($identifier === '') {
-                throw new RuntimeException('Tinker Auth strict mode requires a non-empty user identifier.');
-            }
+            return $user;
         }
 
-        $user = $manager->findUser($identifier);
-
-        if (! $user instanceof Authenticatable) {
-            throw new RuntimeException("Unable to resolve user [{$identifier}] for this command.");
+        if ($mode === 'optional') {
+            return null;
         }
+
+        if (! $input->isInteractive()) {
+            throw new RuntimeException('Tinker Auth strict mode requires --user when the command is non-interactive.');
+        }
+
+        $identifier = trim((string) $this->ask((string) config('tinker-auth.prompt.login_label', 'Login')));
+
+        if ($identifier === '') {
+            throw new RuntimeException('Tinker Auth strict mode requires a non-empty user identifier.');
+        }
+
+        $user = $this->authenticateByCredentials($manager, $identifier);
 
         $manager->setActingUser($user);
+
+        return $user;
+    }
+
+    protected function resolveTinkerAuthMode(): ?string
+    {
+        if (method_exists($this, 'tinkerAuthMode')) {
+            /** @var mixed $mode */
+            $mode = $this->tinkerAuthMode();
+
+            return is_string($mode) ? $mode : null;
+        }
+
+        if (property_exists($this, 'tinkerAuthMode') && is_string($this->tinkerAuthMode)) {
+            return $this->tinkerAuthMode;
+        }
+
+        return null;
+    }
+
+    protected function promptTinkerAuthPassword(): string
+    {
+        return (string) $this->secret((string) config('tinker-auth.prompt.password_label', 'Password'));
+    }
+
+    private function authenticateByCredentials(TinkerAuthManager $manager, string $identifier): Authenticatable
+    {
+        $password = $this->promptTinkerAuthPassword();
+        $user = $manager->attemptLogin($identifier, $password);
+
+        if (! $user instanceof Authenticatable) {
+            throw new RuntimeException('Invalid credentials for the provided user.');
+        }
 
         return $user;
     }

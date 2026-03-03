@@ -20,6 +20,5 @@ return [
 
     'command_trait' => [
         'default_mode' => env('TINKER_AUTH_COMMAND_DEFAULT_MODE', 'strict'),
-        'allow_mode_override' => (bool) env('TINKER_AUTH_COMMAND_ALLOW_MODE_OVERRIDE', true),
     ],
 ];

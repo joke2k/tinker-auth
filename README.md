@@ -11,8 +11,8 @@ Tinker Auth is a Laravel package that enforces or enables user authentication fo
 - Per-environment behavior through `.env` values.
 - Authenticated Tinker session sets the active Laravel user (`Auth::user()`).
 - Reusable command trait that adds:
-  - `--user|-u`: run command as a specific user.
-  - `--auth-mode`: per-command mode override (`strict|optional`).
+  - `--user|-u`: prefill login username and require password.
+  - Per-command auth mode (`strict|optional`) via command property / method.
 
 ## Requirements
 
@@ -44,7 +44,6 @@ return [
     ],
     'command_trait' => [
         'default_mode' => env('TINKER_AUTH_COMMAND_DEFAULT_MODE', 'strict'),
-        'allow_mode_override' => (bool) env('TINKER_AUTH_COMMAND_ALLOW_MODE_OVERRIDE', true),
     ],
 ];
 ```
@@ -87,6 +86,7 @@ class RebuildSearchIndex extends Command
     use InteractsWithTinkerAuth;
 
     protected $signature = 'search:rebuild';
+    protected string $tinkerAuthMode = 'optional'; // strict|optional
 
     public function handle(): int
     {
@@ -99,8 +99,12 @@ class RebuildSearchIndex extends Command
 
 Available options:
 
-- `--user|-u` user identifier (matching `username_column`).
-- `--auth-mode=strict|optional` command-level auth mode override.
+- `--user|-u` user identifier (matching `username_column`), then password is prompted.
+
+Command mode resolution:
+
+- If command defines `protected string $tinkerAuthMode = 'strict|optional'`, that value is used.
+- Otherwise package falls back to `tinker-auth.command_trait.default_mode`.
 
 ## Testing
 

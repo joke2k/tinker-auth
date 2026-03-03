@@ -15,10 +15,17 @@ class TinkerAuthAwareCommand extends Command
 
     protected $description = 'Test command for Tinker auth trait';
 
+    protected string $tinkerAuthMode = 'strict';
+
     public function handle(): int
     {
         $this->line((string) (auth()->user()?->email ?? 'guest'));
 
         return self::SUCCESS;
+    }
+
+    protected function promptTinkerAuthPassword(): string
+    {
+        return 'secret-pass';
     }
 }
