@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Joke2k\TinkerAuth\Concerns;
 
 use Illuminate\Contracts\Auth\Authenticatable;
-use Joke2k\TinkerAuth\Attributes\TinkerAuthMode;
+use Joke2k\TinkerAuth\Attributes\TinkerAuthOptional;
+use Joke2k\TinkerAuth\Attributes\TinkerAuthStrict;
 use Joke2k\TinkerAuth\TinkerAuthManager;
 use ReflectionClass;
 use RuntimeException;
@@ -76,10 +77,15 @@ trait InteractsWithTinkerAuth
     protected function resolveTinkerAuthMode(): ?string
     {
         $reflection = new ReflectionClass($this);
-        $attributes = $reflection->getAttributes(TinkerAuthMode::class);
+        $strict = $reflection->getAttributes(TinkerAuthStrict::class) !== [];
+        $optional = $reflection->getAttributes(TinkerAuthOptional::class) !== [];
 
-        if ($attributes !== []) {
-            $mode = $attributes[0]->newInstance()->mode;
+        if ($strict && $optional) {
+            throw new RuntimeException('Command cannot declare both TinkerAuthStrict and TinkerAuthOptional.');
+        }
+
+        if ($strict || $optional) {
+            $mode = $strict ? 'strict' : 'optional';
 
             if (property_exists($this, 'tinkerAuthMode')) {
                 $this->tinkerAuthMode = $mode;

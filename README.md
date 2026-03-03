@@ -79,10 +79,10 @@ Use the trait in any custom Artisan command:
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Joke2k\TinkerAuth\Attributes\TinkerAuthMode;
+use Joke2k\TinkerAuth\Attributes\TinkerAuthOptional;
 use Joke2k\TinkerAuth\Concerns\InteractsWithTinkerAuth;
 
-#[TinkerAuthMode('optional')]
+#[TinkerAuthOptional]
 class RebuildSearchIndex extends Command
 {
     use InteractsWithTinkerAuth;
@@ -104,7 +104,8 @@ Available options:
 
 Command mode resolution:
 
-- If command has `#[TinkerAuthMode('strict|optional')]`, that value is used and applied to `tinkerAuthMode`.
+- If command has `#[TinkerAuthStrict]`, strict mode is used.
+- If command has `#[TinkerAuthOptional]`, optional mode is used.
 - Otherwise package falls back to `tinker-auth.command_trait.default_mode`.
 
 ## Testing

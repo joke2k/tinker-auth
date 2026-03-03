@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Hash;
 use Joke2k\TinkerAuth\Tests\Fixtures\Commands\TinkerAuthAwareCommand;
+use Joke2k\TinkerAuth\Tests\Fixtures\Commands\TinkerAuthAwareInvalidModeCommand;
 use Joke2k\TinkerAuth\Tests\Fixtures\Commands\TinkerAuthAwareOptionalCommand;
 use Joke2k\TinkerAuth\Tests\Fixtures\User;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -80,4 +81,15 @@ it('fails authentication when --user is provided with wrong password', function 
 
     expect(fn () => $command->run($input, new BufferedOutput()))
         ->toThrow(\RuntimeException::class, 'Invalid credentials for the provided user.');
+});
+
+it('fails when both strict and optional attributes are present', function (): void {
+    $command = new TinkerAuthAwareInvalidModeCommand();
+    $command->setLaravel(app());
+
+    $input = new ArrayInput([]);
+    $input->setInteractive(false);
+
+    expect(fn () => $command->run($input, new BufferedOutput()))
+        ->toThrow(\RuntimeException::class, 'cannot declare both TinkerAuthStrict and TinkerAuthOptional');
 });

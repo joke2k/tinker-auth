@@ -7,9 +7,6 @@ namespace Joke2k\TinkerAuth\Attributes;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_CLASS)]
-class TinkerAuthMode
+class TinkerAuthStrict
 {
-    public function __construct(public readonly string $mode)
-    {
-    }
 }
