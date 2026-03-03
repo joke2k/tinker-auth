@@ -44,11 +44,11 @@ class TinkerAuthServiceProvider extends ServiceProvider
                 $this->app->booted(function (): void {
                     // Register this callback after all providers have registered their console callbacks.
                     ArtisanApplication::starting(function ($artisan): void {
-                        $artisan->add($this->app->make(TinkerCommand::class));
+                        $this->overrideTinkerCommandBinding();
 
-                        $tinker = $artisan->all()['tinker'] ?? null;
+                        $tinker = $this->app->make('command.tinker');
 
-                        if ($tinker !== null && ! $tinker->getDefinition()->hasOption('user')) {
+                        if (! $tinker->getDefinition()->hasOption('user')) {
                             $tinker->getDefinition()->addOption(new InputOption(
                                 'user',
                                 'u',
@@ -56,6 +56,8 @@ class TinkerAuthServiceProvider extends ServiceProvider
                                 'Use this user identifier as login and prompt for password'
                             ));
                         }
+
+                        $artisan->add($tinker);
                     });
                 });
 

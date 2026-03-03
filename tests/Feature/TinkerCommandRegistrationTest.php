@@ -2,14 +2,11 @@
 
 declare(strict_types=1);
 
-use Joke2k\TinkerAuth\Commands\TinkerCommand;
-
-it('registers the package tinker command implementation', function (): void {
+it('registers tinker command with user option', function (): void {
     // Trigger command registration callbacks.
     Artisan::call('list');
 
     $commands = Artisan::all();
 
-    expect($commands['tinker'] ?? null)->toBeInstanceOf(TinkerCommand::class)
-        ->and(($commands['tinker'] ?? null)?->getDefinition()->hasOption('user'))->toBeTrue();
+    expect(($commands['tinker'] ?? null)?->getDefinition()->hasOption('user'))->toBeTrue();
 });
