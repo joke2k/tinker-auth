@@ -1,9 +1,0 @@
-services:
-  package-test:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    working_dir: /app
-    volumes:
-      - ./:/app
-    command: sh -lc "composer install --no-interaction --prefer-dist && ./vendor/bin/pest"

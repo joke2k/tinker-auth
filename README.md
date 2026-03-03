@@ -21,7 +21,6 @@ Tinker Auth is a Laravel package that enforces or enables user authentication fo
 - PHP 8.2+
 - Laravel 11 or 12
 - Composer
-- Docker + Docker Compose (for containerized tests)
 
 ## Installation
 
@@ -126,16 +125,4 @@ Local:
 
 ```bash
 composer test
-```
-
-Docker:
-
-```bash
-docker compose run --rm package-test
-```
-
-Composer script:
-
-```bash
-composer test:docker
 ```
