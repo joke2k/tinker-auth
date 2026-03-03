@@ -5,7 +5,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "illuminate/support": "^11.0|^12.0"
+        "illuminate/support": "^11.0|^12.0",
+        "laravel/tinker": "^2.11"
     },
     "require-dev": {
         "orchestra/testbench": "^9.0|^10.0",
@@ -14,6 +15,9 @@
         "phpstan/phpstan": "^1.11",
         "laravel/pint": "^1.0",
         "rector/rector": "^1.2"
+    },
+    "suggest": {
+        "laravel/prompts": "Enables enhanced interactive authentication prompts."
     },
     "autoload": {
         "psr-4": {

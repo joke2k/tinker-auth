@@ -21,12 +21,19 @@ Tinker Auth is a Laravel package that enforces or enables user authentication fo
 - PHP 8.2+
 - Laravel 11 or 12
 - Composer
+- `laravel/tinker` (needed to intercept and secure `php artisan tinker`)
 
 ## Installation
 
 ```bash
 composer require --dev joke2k/tinker-auth
 php artisan tinker-auth:install
+```
+
+Optional (recommended for better interactive UX):
+
+```bash
+composer require laravel/prompts
 ```
 
 ## Configuration
