@@ -71,3 +71,31 @@ it('continues in disabled mode without authentication', function (): void {
 
     expect($exitCode)->toBe(0);
 });
+
+it('does not keep stale authentication failure between runs on the same command instance', function (): void {
+    $command = new class extends TinkerCommand
+    {
+        protected function runTinker(): int
+        {
+            return self::SUCCESS;
+        }
+    };
+
+    $command->setLaravel(app());
+
+    config()->set('tinker-auth.mode', 'strict');
+    $firstInput = new ArrayInput(['--execute' => '1 + 1']);
+    $firstInput->setInteractive(false);
+
+    $firstExitCode = $command->run($firstInput, new BufferedOutput);
+
+    expect($firstExitCode)->toBe(1);
+
+    config()->set('tinker-auth.mode', 'optional');
+    $secondInput = new ArrayInput(['--execute' => '1 + 1']);
+    $secondInput->setInteractive(false);
+
+    $secondExitCode = $command->run($secondInput, new BufferedOutput);
+
+    expect($secondExitCode)->toBe(0);
+});

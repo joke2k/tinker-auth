@@ -37,6 +37,8 @@ class TinkerCommand extends BaseTinkerCommand
 
     protected function initialize(InputInterface $input, OutputInterface $output): void
     {
+        $this->authInitializationException = null;
+
         try {
             $this->initializeInteractsWithTinkerAuth($input, $output);
         } catch (ManuallyFailedException $manuallyFailedException) {
