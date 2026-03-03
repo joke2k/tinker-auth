@@ -3,14 +3,13 @@
 declare(strict_types=1);
 
 use Joke2k\TinkerAuth\Commands\TinkerCommand;
-use Joke2k\TinkerAuth\TinkerAuthManager;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 it('fails in strict mode when tinker input is non-interactive', function (): void {
     config()->set('tinker-auth.mode', 'strict');
 
-    $command = new class(app(TinkerAuthManager::class)) extends TinkerCommand {
+    $command = new class extends TinkerCommand {
         protected function runTinker(): int
         {
             return self::SUCCESS;
@@ -33,7 +32,7 @@ it('fails in strict mode when tinker input is non-interactive', function (): voi
 it('continues in optional mode when tinker input is non-interactive', function (): void {
     config()->set('tinker-auth.mode', 'optional');
 
-    $command = new class(app(TinkerAuthManager::class)) extends TinkerCommand {
+    $command = new class extends TinkerCommand {
         protected function runTinker(): int
         {
             return self::SUCCESS;
@@ -53,7 +52,7 @@ it('continues in optional mode when tinker input is non-interactive', function (
 it('continues in disabled mode without authentication', function (): void {
     config()->set('tinker-auth.mode', 'disabled');
 
-    $command = new class(app(TinkerAuthManager::class)) extends TinkerCommand {
+    $command = new class extends TinkerCommand {
         protected function runTinker(): int
         {
             return self::SUCCESS;

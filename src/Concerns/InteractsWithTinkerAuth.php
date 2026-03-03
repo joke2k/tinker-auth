@@ -36,42 +36,78 @@ trait InteractsWithTinkerAuth
     {
         parent::initialize($input, $output);
 
-        $this->initializeTinkerAuth($input);
+        $this->initializeTinkerAuth($input, $output);
     }
 
-    protected function initializeTinkerAuth(InputInterface $input): ?Authenticatable
+    protected function initializeTinkerAuth(InputInterface $input, OutputInterface $output): ?Authenticatable
     {
         $manager = app(TinkerAuthManager::class);
+
+        if ($manager->guard()->user() !== null) {
+            return $manager->guard()->user();
+        }
+
+        $mode = $this->resolveEffectiveTinkerAuthMode($manager);
+
+        if ($mode === 'disabled') {
+            return null;
+        }
+
         $identifier = $this->normalizeInputOption($input->getOption('user'));
-        $mode = $manager->resolveCommandMode($this->resolveTinkerAuthMode());
 
         if ($identifier !== null) {
             $user = $this->authenticateByCredentials($manager, $identifier);
-
             $manager->setActingUser($user);
+            $this->onTinkerAuthSuccess($output);
 
             return $user;
         }
 
-        if ($mode === 'optional') {
+        if (! $input->isInteractive()) {
+            if ($mode === 'strict') {
+                throw new RuntimeException($this->strictNonInteractiveAuthMessage());
+            }
+
             return null;
         }
 
-        if (! $input->isInteractive()) {
-            throw new RuntimeException('Tinker Auth strict mode requires --user when the command is non-interactive.');
+        $this->onTinkerAuthPromptStart($mode, $output);
+
+        $attempts = max(1, (int) config('tinker-auth.max_attempts', 3));
+
+        for ($i = 1; $i <= $attempts; $i++) {
+            $identifier = $this->promptTinkerAuthLogin();
+
+            if ($identifier === '') {
+                if ($mode === 'optional') {
+                    return null;
+                }
+
+                $this->reportTinkerAuthError('A login value is required in strict mode.');
+                continue;
+            }
+
+            try {
+                $user = $this->authenticateByCredentials($manager, $identifier);
+                $manager->setActingUser($user);
+                $this->onTinkerAuthSuccess($output);
+
+                return $user;
+            } catch (RuntimeException) {
+                $this->reportTinkerAuthError('Invalid credentials.');
+            }
         }
 
-        $identifier = $this->promptTinkerAuthLogin();
-
-        if ($identifier === '') {
-            throw new RuntimeException('Tinker Auth strict mode requires a non-empty user identifier.');
+        if ($mode === 'strict') {
+            throw new RuntimeException('Unable to authenticate this session.');
         }
 
-        $user = $this->authenticateByCredentials($manager, $identifier);
+        return null;
+    }
 
-        $manager->setActingUser($user);
-
-        return $user;
+    protected function resolveEffectiveTinkerAuthMode(TinkerAuthManager $manager): string
+    {
+        return $manager->resolveCommandMode($this->resolveTinkerAuthMode());
     }
 
     protected function resolveTinkerAuthMode(): ?string
@@ -106,6 +142,28 @@ trait InteractsWithTinkerAuth
         }
 
         return null;
+    }
+
+    protected function onTinkerAuthPromptStart(string $mode, OutputInterface $output): void
+    {
+        // Hook for command-specific prompt messaging.
+    }
+
+    protected function onTinkerAuthSuccess(OutputInterface $output): void
+    {
+        // Hook for command-specific success messaging.
+    }
+
+    protected function strictNonInteractiveAuthMessage(): string
+    {
+        return 'Tinker Auth strict mode requires --user when the command is non-interactive.';
+    }
+
+    protected function reportTinkerAuthError(string $message): void
+    {
+        if (method_exists($this, 'error')) {
+            $this->error($message);
+        }
     }
 
     protected function promptTinkerAuthPassword(): string

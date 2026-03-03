@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Hash;
 use Joke2k\TinkerAuth\Commands\TinkerCommand;
-use Joke2k\TinkerAuth\TinkerAuthManager;
 use Joke2k\TinkerAuth\Tests\Fixtures\User;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -17,9 +16,9 @@ it('does not prompt again when user is already authenticated', function (): void
         'password' => Hash::make('secret-pass'),
     ]);
 
-    app(TinkerAuthManager::class)->setActingUser($user);
+    auth()->setUser($user);
 
-    $command = new class(app(TinkerAuthManager::class)) extends TinkerCommand {
+    $command = new class extends TinkerCommand {
         protected function runTinker(): int
         {
             return self::SUCCESS;

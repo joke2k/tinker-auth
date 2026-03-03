@@ -4,22 +4,26 @@ declare(strict_types=1);
 
 namespace Joke2k\TinkerAuth\Commands;
 
-use Illuminate\Contracts\Auth\Authenticatable;
-use Laravel\Tinker\Console\TinkerCommand as BaseTinkerCommand;
+use Joke2k\TinkerAuth\Concerns\InteractsWithTinkerAuth;
 use Joke2k\TinkerAuth\TinkerAuthManager;
+use Laravel\Tinker\Console\TinkerCommand as BaseTinkerCommand;
+use RuntimeException;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class TinkerCommand extends BaseTinkerCommand
 {
-    public function __construct(private readonly TinkerAuthManager $authManager)
-    {
-        parent::__construct();
+    use InteractsWithTinkerAuth {
+        initialize as private initializeInteractsWithTinkerAuth;
     }
+
+    private ?RuntimeException $authInitializationException = null;
 
     public function handle()
     {
-        $authResult = $this->authenticateSession();
+        if ($this->authInitializationException !== null) {
+            $this->error($this->authInitializationException->getMessage());
 
-        if ($authResult === self::FAILURE) {
             return self::FAILURE;
         }
 
@@ -31,102 +35,44 @@ class TinkerCommand extends BaseTinkerCommand
         return (int) parent::handle();
     }
 
-    protected function authenticateSession(): int
+    protected function initialize(InputInterface $input, OutputInterface $output): void
     {
-        if ($this->authManager->guard()->user() !== null) {
-            return self::SUCCESS;
+        try {
+            $this->initializeInteractsWithTinkerAuth($input, $output);
+        } catch (RuntimeException $exception) {
+            $this->authInitializationException = $exception;
         }
+    }
 
-        $mode = $this->authManager->resolveMode();
+    protected function resolveEffectiveTinkerAuthMode(TinkerAuthManager $manager): string
+    {
+        return $manager->resolveMode($this->resolveTinkerAuthMode(), true);
+    }
 
-        if ($mode === 'disabled') {
-            return self::SUCCESS;
-        }
+    protected function resolveTinkerAuthMode(): ?string
+    {
+        return (string) config('tinker-auth.mode', 'optional');
+    }
 
-        if (! $this->input->isInteractive()) {
-            if ($mode === 'strict') {
-                $this->error('Tinker Auth strict mode requires interactive authentication.');
-
-                return self::FAILURE;
-            }
-
-            return self::SUCCESS;
-        }
-
+    protected function onTinkerAuthPromptStart(string $mode, OutputInterface $output): void
+    {
         if ($mode === 'strict') {
             $this->info((string) config('tinker-auth.prompt.strict_message'));
+            return;
         }
 
         if ($mode === 'optional') {
             $this->info((string) config('tinker-auth.prompt.optional_message'));
         }
-
-        $user = $this->promptForAuthenticatedUser($mode);
-
-        if ($user instanceof Authenticatable) {
-            $this->authManager->setActingUser($user);
-            $this->info('Authenticated for this Tinker session.');
-
-            return self::SUCCESS;
-        }
-
-        if ($mode === 'strict') {
-            $this->error('Unable to authenticate this Tinker session.');
-
-            return self::FAILURE;
-        }
-
-        return self::SUCCESS;
     }
 
-    protected function promptForAuthenticatedUser(string $mode): ?Authenticatable
+    protected function onTinkerAuthSuccess(OutputInterface $output): void
     {
-        $attempts = max(1, (int) config('tinker-auth.max_attempts', 3));
-
-        for ($i = 1; $i <= $attempts; $i++) {
-            $identifier = $this->promptLogin();
-
-            if ($identifier === '') {
-                if ($mode === 'optional') {
-                    return null;
-                }
-
-                $this->error('A login value is required in strict mode.');
-                continue;
-            }
-
-            $password = $this->promptPassword();
-            $user = $this->authManager->attemptLogin($identifier, $password);
-
-            if ($user instanceof Authenticatable) {
-                return $user;
-            }
-
-            $this->error('Invalid credentials.');
-        }
-
-        return null;
+        $this->info('Authenticated for this Tinker session.');
     }
 
-    protected function promptLogin(): string
+    protected function strictNonInteractiveAuthMessage(): string
     {
-        $label = (string) config('tinker-auth.prompt.login_label', 'Login');
-
-        if (function_exists('Laravel\\Prompts\\text')) {
-            return trim((string) \Laravel\Prompts\text(label: $label, required: false));
-        }
-
-        return trim((string) $this->ask($label));
-    }
-
-    protected function promptPassword(): string
-    {
-        $label = (string) config('tinker-auth.prompt.password_label', 'Password');
-
-        if (function_exists('Laravel\\Prompts\\password')) {
-            return (string) \Laravel\Prompts\password(label: $label, required: true);
-        }
-
-        return (string) $this->secret($label);
+        return 'Tinker Auth strict mode requires interactive authentication.';
     }
 }
