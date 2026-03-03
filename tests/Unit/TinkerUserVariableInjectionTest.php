@@ -36,6 +36,7 @@ it('injects an include file that exposes the authenticated user as $_u', functio
 
     /** @var mixed $_u */
     $_u = null;
+
     require $file;
 
     expect($_u)->toBe($user);
@@ -67,6 +68,7 @@ it('injects an include file that sets $_u to null when no user is authenticated'
 
     /** @var mixed $_u */
     $_u = 'sentinel';
+
     require $file;
 
     expect($_u)->toBeNull();

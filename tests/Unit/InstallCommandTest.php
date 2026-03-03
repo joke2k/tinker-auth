@@ -17,7 +17,7 @@ it('publishes config without force by default', function (): void {
         }
 
         /**
-         * @param array<string, mixed> $arguments
+         * @param  array<string, mixed>  $arguments
          */
         public function call($command, array $arguments = []): int
         {
@@ -53,7 +53,7 @@ it('publishes config with force when requested', function (): void {
         }
 
         /**
-         * @param array<string, mixed> $arguments
+         * @param  array<string, mixed>  $arguments
          */
         public function call($command, array $arguments = []): int
         {

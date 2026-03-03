@@ -74,6 +74,7 @@ it('supports command auth mode from a tinkerAuthMode method', function (): void 
 
     $input = new ArrayInput([]);
     $input->setInteractive(false);
+
     $output = new BufferedOutput;
     $exitCode = $command->run($input, $output);
 
@@ -132,6 +133,7 @@ it('handles interactive strict mode attempts with fallback ask/secret methods', 
 
     $input = new ArrayInput([]);
     $input->setInteractive(true);
+
     $output = new BufferedOutput;
     $exitCode = $command->run($input, $output);
     $text = $output->fetch();
@@ -159,6 +161,7 @@ it('captures invalid argument from initialize as command failure', function (): 
 
     $input = new ArrayInput(['--execute' => '1 + 1']);
     $input->setInteractive(false);
+
     $output = new BufferedOutput;
 
     $exitCode = $command->run($input, $output);
