@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Joke2k\TinkerAuth\Commands;
 
 use Illuminate\Console\ManuallyFailedException;
+use InvalidArgumentException;
 use Joke2k\TinkerAuth\Concerns\InteractsWithTinkerAuth;
 use Joke2k\TinkerAuth\TinkerAuthManager;
 use Laravel\Tinker\Console\TinkerCommand as BaseTinkerCommand;
@@ -43,6 +44,8 @@ class TinkerCommand extends BaseTinkerCommand
             $this->initializeInteractsWithTinkerAuth($input, $output);
         } catch (ManuallyFailedException $manuallyFailedException) {
             $this->authInitializationException = $manuallyFailedException;
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            $this->authInitializationException = new ManuallyFailedException($invalidArgumentException->getMessage());
         }
     }
 

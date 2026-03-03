@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Joke2k\TinkerAuth\Concerns;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use InvalidArgumentException;
 use Joke2k\TinkerAuth\Attributes\TinkerAuthOptional;
 use Joke2k\TinkerAuth\Attributes\TinkerAuthStrict;
 use Joke2k\TinkerAuth\TinkerAuthManager;
@@ -35,7 +36,11 @@ trait InteractsWithTinkerAuth
     {
         parent::initialize($input, $output);
 
-        $this->initializeTinkerAuth($input, $output);
+        try {
+            $this->initializeTinkerAuth($input, $output);
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            $this->fail($invalidArgumentException->getMessage());
+        }
     }
 
     protected function initializeTinkerAuth(InputInterface $input, OutputInterface $output): ?Authenticatable
