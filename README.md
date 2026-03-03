@@ -20,13 +20,16 @@ Tinker Auth is a Laravel package that enforces or enables user authentication fo
 
 - PHP 8.2+
 - Laravel 11 or 12
-- Composer
-- `laravel/tinker` (needed to intercept and secure `php artisan tinker`)
+- `illuminate/support`
+- `laravel/tinker`
+- `laravel/promot` (optional)
 
 ## Installation
 
+Install as a runtime dependency:
+
 ```bash
-composer require --dev joke2k/tinker-auth
+composer require joke2k/tinker-auth
 php artisan tinker-auth:install
 ```
 
@@ -65,13 +68,11 @@ Example per-environment overrides:
 ```env
 # .env.local
 TINKER_AUTH_MODE=optional
+TINKER_AUTH_AUTOCOMPLETE_USERS=true
 
 # .env.production
 TINKER_AUTH_MODE=strict
-
-# Optional: enable username autocomplete in login prompt
-TINKER_AUTH_AUTOCOMPLETE_USERS=true
-TINKER_AUTH_AUTOCOMPLETE_LIMIT=5
+TINKER_AUTH_AUTOCOMPLETE_USERS=false
 ```
 
 ## Tinker Behavior
@@ -129,8 +130,6 @@ Command mode resolution:
 - Otherwise package falls back to `tinker-auth.command_trait.default_mode`.
 
 ## Testing
-
-Local:
 
 ```bash
 composer test
