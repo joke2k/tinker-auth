@@ -28,7 +28,7 @@
     "scripts": {
         "test": "./vendor/bin/pest",
         "test:docker": "docker compose run --rm package-test",
-        "analyse": "./vendor/bin/phpstan analyse",
+        "analyse": "./vendor/bin/phpstan analyse --memory-limit=512M",
         "rector": "./vendor/bin/rector process",
         "rector:dry": "./vendor/bin/rector process --dry-run",
         "format": "./vendor/bin/pint",

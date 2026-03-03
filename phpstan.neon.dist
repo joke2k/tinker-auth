@@ -1,5 +1,16 @@
 parameters:
     level: 6
+    tmpDir: .phpstan/cache
+    bootstrapFiles:
+        - vendor/autoload.php
     paths:
+        - config
         - src
         - tests
+    excludePaths:
+        analyse:
+            - vendor/*
+            - .plans/*
+    parallel:
+        maximumNumberOfProcesses: 1
+
