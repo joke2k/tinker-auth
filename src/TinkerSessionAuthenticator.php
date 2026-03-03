@@ -87,8 +87,7 @@ class TinkerSessionAuthenticator
             $identifier = $fixedIdentifier;
 
             if ($identifier === null) {
-                $loginQuestion = new Question($loginLabel.': ');
-                $identifier = trim((string) $helper->ask($input, $output, $loginQuestion));
+                $identifier = $this->promptLogin($input, $output, $helper, $loginLabel);
             }
 
             if ($identifier === '') {
@@ -100,11 +99,7 @@ class TinkerSessionAuthenticator
                 continue;
             }
 
-            $passwordQuestion = new Question($passwordLabel.': ');
-            $passwordQuestion->setHidden(true);
-            $passwordQuestion->setHiddenFallback(false);
-
-            $password = (string) $helper->ask($input, $output, $passwordQuestion);
+            $password = $this->promptPassword($input, $output, $helper, $passwordLabel);
             $user = $this->authManager->attemptLogin($identifier, $password);
 
             if ($user instanceof Authenticatable) {
@@ -115,6 +110,38 @@ class TinkerSessionAuthenticator
         }
 
         return null;
+    }
+
+    private function promptLogin(
+        InputInterface $input,
+        OutputInterface $output,
+        QuestionHelper $helper,
+        string $label
+    ): string {
+        if (function_exists('Laravel\\Prompts\\text')) {
+            return trim((string) \Laravel\Prompts\text(label: $label, required: false));
+        }
+
+        $loginQuestion = new Question($label.': ');
+
+        return trim((string) $helper->ask($input, $output, $loginQuestion));
+    }
+
+    private function promptPassword(
+        InputInterface $input,
+        OutputInterface $output,
+        QuestionHelper $helper,
+        string $label
+    ): string {
+        if (function_exists('Laravel\\Prompts\\password')) {
+            return (string) \Laravel\Prompts\password(label: $label, required: true);
+        }
+
+        $passwordQuestion = new Question($label.': ');
+        $passwordQuestion->setHidden(true);
+        $passwordQuestion->setHiddenFallback(false);
+
+        return (string) $helper->ask($input, $output, $passwordQuestion);
     }
 
     private function resolveUserOption(InputInterface $input): ?string

@@ -82,11 +82,9 @@ class TinkerCommand extends BaseTinkerCommand
     protected function promptForAuthenticatedUser(string $mode): ?Authenticatable
     {
         $attempts = max(1, (int) config('tinker-auth.max_attempts', 3));
-        $loginLabel = (string) config('tinker-auth.prompt.login_label', 'Login');
-        $passwordLabel = (string) config('tinker-auth.prompt.password_label', 'Password');
 
         for ($i = 1; $i <= $attempts; $i++) {
-            $identifier = trim((string) $this->ask($loginLabel));
+            $identifier = $this->promptLogin();
 
             if ($identifier === '') {
                 if ($mode === 'optional') {
@@ -97,7 +95,7 @@ class TinkerCommand extends BaseTinkerCommand
                 continue;
             }
 
-            $password = (string) $this->secret($passwordLabel);
+            $password = $this->promptPassword();
             $user = $this->authManager->attemptLogin($identifier, $password);
 
             if ($user instanceof Authenticatable) {
@@ -108,5 +106,27 @@ class TinkerCommand extends BaseTinkerCommand
         }
 
         return null;
+    }
+
+    protected function promptLogin(): string
+    {
+        $label = (string) config('tinker-auth.prompt.login_label', 'Login');
+
+        if (function_exists('Laravel\\Prompts\\text')) {
+            return trim((string) \Laravel\Prompts\text(label: $label, required: false));
+        }
+
+        return trim((string) $this->ask($label));
+    }
+
+    protected function promptPassword(): string
+    {
+        $label = (string) config('tinker-auth.prompt.password_label', 'Password');
+
+        if (function_exists('Laravel\\Prompts\\password')) {
+            return (string) \Laravel\Prompts\password(label: $label, required: true);
+        }
+
+        return (string) $this->secret($label);
     }
 }

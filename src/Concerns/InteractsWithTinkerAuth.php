@@ -61,7 +61,7 @@ trait InteractsWithTinkerAuth
             throw new RuntimeException('Tinker Auth strict mode requires --user when the command is non-interactive.');
         }
 
-        $identifier = trim((string) $this->ask((string) config('tinker-auth.prompt.login_label', 'Login')));
+        $identifier = $this->promptTinkerAuthLogin();
 
         if ($identifier === '') {
             throw new RuntimeException('Tinker Auth strict mode requires a non-empty user identifier.');
@@ -110,7 +110,26 @@ trait InteractsWithTinkerAuth
 
     protected function promptTinkerAuthPassword(): string
     {
+        if (function_exists('Laravel\\Prompts\\password')) {
+            return (string) \Laravel\Prompts\password(
+                label: (string) config('tinker-auth.prompt.password_label', 'Password'),
+                required: true,
+            );
+        }
+
         return (string) $this->secret((string) config('tinker-auth.prompt.password_label', 'Password'));
+    }
+
+    protected function promptTinkerAuthLogin(): string
+    {
+        if (function_exists('Laravel\\Prompts\\text')) {
+            return trim((string) \Laravel\Prompts\text(
+                label: (string) config('tinker-auth.prompt.login_label', 'Login'),
+                required: true,
+            ));
+        }
+
+        return trim((string) $this->ask((string) config('tinker-auth.prompt.login_label', 'Login')));
     }
 
     private function authenticateByCredentials(TinkerAuthManager $manager, string $identifier): Authenticatable
