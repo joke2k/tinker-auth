@@ -28,4 +28,9 @@ class TinkerAuthAwareCommand extends Command
     {
         return 'secret-pass';
     }
+
+    public function currentMode(): string
+    {
+        return $this->tinkerAuthMode;
+    }
 }

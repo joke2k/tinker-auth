@@ -38,7 +38,8 @@ it('runs as guest in optional mode when user is missing', function (): void {
     $exitCode = $command->run($input, $output);
 
     expect($exitCode)->toBe(0)
-        ->and($output->fetch())->toContain('guest');
+        ->and($output->fetch())->toContain('guest')
+        ->and($command->currentMode())->toBe('optional');
 });
 
 it('sets the acting user from --user option', function (): void {

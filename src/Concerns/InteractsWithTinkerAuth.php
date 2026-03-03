@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Joke2k\TinkerAuth\Concerns;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use Joke2k\TinkerAuth\Attributes\TinkerAuthMode;
 use Joke2k\TinkerAuth\TinkerAuthManager;
+use ReflectionClass;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -73,6 +75,19 @@ trait InteractsWithTinkerAuth
 
     protected function resolveTinkerAuthMode(): ?string
     {
+        $reflection = new ReflectionClass($this);
+        $attributes = $reflection->getAttributes(TinkerAuthMode::class);
+
+        if ($attributes !== []) {
+            $mode = $attributes[0]->newInstance()->mode;
+
+            if (property_exists($this, 'tinkerAuthMode')) {
+                $this->tinkerAuthMode = $mode;
+            }
+
+            return $mode;
+        }
+
         if (method_exists($this, 'tinkerAuthMode')) {
             /** @var mixed $mode */
             $mode = $this->tinkerAuthMode();
