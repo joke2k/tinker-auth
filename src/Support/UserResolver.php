@@ -10,9 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserResolver
 {
-    public function __construct(private readonly AuthFactory $auth)
-    {
-    }
+    public function __construct(private readonly AuthFactory $auth) {}
 
     public function findByIdentifier(string $identifier): ?Authenticatable
     {
@@ -49,7 +47,7 @@ class UserResolver
             return [];
         }
 
-        $model = new $modelClass();
+        $model = new $modelClass;
 
         if (! $model instanceof Model) {
             return [];

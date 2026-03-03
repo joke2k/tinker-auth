@@ -88,6 +88,7 @@ trait InteractsWithTinkerAuth
                 }
 
                 $this->reportTinkerAuthError('A login value is required in strict mode.');
+
                 continue;
             }
 
@@ -212,6 +213,7 @@ trait InteractsWithTinkerAuth
     private function authenticateByCredentials(TinkerAuthManager $manager, string $identifier): ?Authenticatable
     {
         $password = $this->promptTinkerAuthPassword();
+
         return $manager->attemptLogin($identifier, $password);
     }
 

@@ -8,9 +8,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 
 class TinkerAuth
 {
-    public function __construct(private readonly TinkerAuthManager $manager)
-    {
-    }
+    public function __construct(private readonly TinkerAuthManager $manager) {}
 
     public function mode(?string $override = null, bool $allowDisabled = true): string
     {

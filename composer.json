@@ -31,7 +31,8 @@
         "analyse": "./vendor/bin/phpstan analyse",
         "rector": "./vendor/bin/rector process",
         "rector:dry": "./vendor/bin/rector process --dry-run",
-        "format": "./vendor/bin/pint"
+        "format": "./vendor/bin/pint",
+        "format:check": "./vendor/bin/pint --test"
     },
     "extra": {
         "laravel": {

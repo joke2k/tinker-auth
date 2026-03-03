@@ -7,6 +7,4 @@ namespace Joke2k\TinkerAuth\Attributes;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_CLASS)]
-class TinkerAuthOptional
-{
-}
+class TinkerAuthOptional {}

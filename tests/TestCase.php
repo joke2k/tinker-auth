@@ -6,8 +6,8 @@ namespace Joke2k\TinkerAuth\Tests;
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Joke2k\TinkerAuth\TinkerAuthServiceProvider;
 use Joke2k\TinkerAuth\Tests\Fixtures\User;
+use Joke2k\TinkerAuth\TinkerAuthServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra

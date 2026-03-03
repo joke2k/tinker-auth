@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Hash;
-use Joke2k\TinkerAuth\TinkerAuthManager;
 use Joke2k\TinkerAuth\Tests\Fixtures\User;
+use Joke2k\TinkerAuth\TinkerAuthManager;
 
 it('resolves configured mode', function (): void {
     $manager = app(TinkerAuthManager::class);

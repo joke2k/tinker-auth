@@ -9,9 +9,7 @@ use Illuminate\Contracts\Auth\Factory as AuthFactory;
 
 class CredentialValidator
 {
-    public function __construct(private readonly AuthFactory $auth)
-    {
-    }
+    public function __construct(private readonly AuthFactory $auth) {}
 
     public function validate(Authenticatable $user, string $password): bool
     {

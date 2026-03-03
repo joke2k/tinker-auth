@@ -17,8 +17,7 @@ class TinkerAuthManager
         private readonly AuthFactory $auth,
         private readonly UserResolver $userResolver,
         private readonly CredentialValidator $credentialValidator,
-    ) {
-    }
+    ) {}
 
     public function resolveMode(?string $modeOverride = null, bool $allowDisabled = true): string
     {
@@ -30,6 +29,7 @@ class TinkerAuthManager
 
         if (! in_array($mode, $allowed, true)) {
             $expected = implode(', ', $allowed);
+
             throw new InvalidArgumentException("Invalid Tinker Auth mode [{$mode}]. Expected one of: {$expected}.");
         }
 

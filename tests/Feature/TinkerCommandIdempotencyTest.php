@@ -18,7 +18,8 @@ it('does not prompt again when user is already authenticated', function (): void
 
     auth()->guard()->setUser($user);
 
-    $command = new class extends TinkerCommand {
+    $command = new class extends TinkerCommand
+    {
         protected function runTinker(): int
         {
             return self::SUCCESS;
@@ -30,7 +31,7 @@ it('does not prompt again when user is already authenticated', function (): void
     $input = new ArrayInput(['--execute' => '1 + 1']);
     $input->setInteractive(true);
 
-    $output = new BufferedOutput();
+    $output = new BufferedOutput;
     $exitCode = $command->run($input, $output);
 
     expect($exitCode)->toBe(0)

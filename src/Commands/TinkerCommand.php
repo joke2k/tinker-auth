@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Joke2k\TinkerAuth\Commands;
 
+use Illuminate\Console\ManuallyFailedException;
 use Joke2k\TinkerAuth\Concerns\InteractsWithTinkerAuth;
 use Joke2k\TinkerAuth\TinkerAuthManager;
-use Illuminate\Console\ManuallyFailedException;
 use Laravel\Tinker\Console\TinkerCommand as BaseTinkerCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -58,6 +58,7 @@ class TinkerCommand extends BaseTinkerCommand
     {
         if ($mode === 'strict') {
             $this->info((string) config('tinker-auth.prompt.strict_message'));
+
             return;
         }
 
