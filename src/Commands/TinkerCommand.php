@@ -6,8 +6,8 @@ namespace Joke2k\TinkerAuth\Commands;
 
 use Joke2k\TinkerAuth\Concerns\InteractsWithTinkerAuth;
 use Joke2k\TinkerAuth\TinkerAuthManager;
+use Illuminate\Console\ManuallyFailedException;
 use Laravel\Tinker\Console\TinkerCommand as BaseTinkerCommand;
-use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -17,7 +17,7 @@ class TinkerCommand extends BaseTinkerCommand
         initialize as private initializeInteractsWithTinkerAuth;
     }
 
-    private ?RuntimeException $authInitializationException = null;
+    private ?ManuallyFailedException $authInitializationException = null;
 
     public function handle()
     {
@@ -39,7 +39,7 @@ class TinkerCommand extends BaseTinkerCommand
     {
         try {
             $this->initializeInteractsWithTinkerAuth($input, $output);
-        } catch (RuntimeException $exception) {
+        } catch (ManuallyFailedException $exception) {
             $this->authInitializationException = $exception;
         }
     }

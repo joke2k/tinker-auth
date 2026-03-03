@@ -9,7 +9,6 @@ use Joke2k\TinkerAuth\Attributes\TinkerAuthOptional;
 use Joke2k\TinkerAuth\Attributes\TinkerAuthStrict;
 use Joke2k\TinkerAuth\TinkerAuthManager;
 use ReflectionClass;
-use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -57,6 +56,11 @@ trait InteractsWithTinkerAuth
 
         if ($identifier !== null) {
             $user = $this->authenticateByCredentials($manager, $identifier);
+
+            if (! $user instanceof Authenticatable) {
+                $this->fail('Invalid credentials for the provided user.');
+            }
+
             $manager->setActingUser($user);
             $this->onTinkerAuthSuccess($output);
 
@@ -65,7 +69,7 @@ trait InteractsWithTinkerAuth
 
         if (! $input->isInteractive()) {
             if ($mode === 'strict') {
-                throw new RuntimeException($this->strictNonInteractiveAuthMessage());
+                $this->fail($this->strictNonInteractiveAuthMessage());
             }
 
             return null;
@@ -87,19 +91,20 @@ trait InteractsWithTinkerAuth
                 continue;
             }
 
-            try {
-                $user = $this->authenticateByCredentials($manager, $identifier);
+            $user = $this->authenticateByCredentials($manager, $identifier);
+
+            if ($user instanceof Authenticatable) {
                 $manager->setActingUser($user);
                 $this->onTinkerAuthSuccess($output);
 
                 return $user;
-            } catch (RuntimeException) {
-                $this->reportTinkerAuthError('Invalid credentials.');
             }
+
+            $this->reportTinkerAuthError('Invalid credentials.');
         }
 
         if ($mode === 'strict') {
-            throw new RuntimeException('Unable to authenticate this session.');
+            $this->fail('Unable to authenticate this session.');
         }
 
         return null;
@@ -117,7 +122,7 @@ trait InteractsWithTinkerAuth
         $optional = $reflection->getAttributes(TinkerAuthOptional::class) !== [];
 
         if ($strict && $optional) {
-            throw new RuntimeException('Command cannot declare both TinkerAuthStrict and TinkerAuthOptional.');
+            $this->fail('Command cannot declare both TinkerAuthStrict and TinkerAuthOptional.');
         }
 
         if ($strict || $optional) {
@@ -204,16 +209,10 @@ trait InteractsWithTinkerAuth
         return trim((string) $this->ask((string) config('tinker-auth.prompt.login_label', 'Login')));
     }
 
-    private function authenticateByCredentials(TinkerAuthManager $manager, string $identifier): Authenticatable
+    private function authenticateByCredentials(TinkerAuthManager $manager, string $identifier): ?Authenticatable
     {
         $password = $this->promptTinkerAuthPassword();
-        $user = $manager->attemptLogin($identifier, $password);
-
-        if (! $user instanceof Authenticatable) {
-            throw new RuntimeException('Invalid credentials for the provided user.');
-        }
-
-        return $user;
+        return $manager->attemptLogin($identifier, $password);
     }
 
     private function normalizeInputOption(mixed $value): ?string

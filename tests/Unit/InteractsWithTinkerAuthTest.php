@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Console\ManuallyFailedException;
 use Illuminate\Support\Facades\Hash;
 use Joke2k\TinkerAuth\Tests\Fixtures\Commands\TinkerAuthAwareCommand;
 use Joke2k\TinkerAuth\Tests\Fixtures\Commands\TinkerAuthAwareInvalidModeCommand;
@@ -25,7 +26,7 @@ it('fails in strict mode when user is missing on non-interactive input', functio
     $input->setInteractive(false);
 
     expect(fn () => $command->run($input, new BufferedOutput()))
-        ->toThrow(\RuntimeException::class, 'requires --user when the command is non-interactive');
+        ->toThrow(ManuallyFailedException::class, 'requires --user when the command is non-interactive');
 });
 
 it('runs as guest in optional mode when user is missing', function (): void {
@@ -80,7 +81,7 @@ it('fails authentication when --user is provided with wrong password', function 
     $input->setInteractive(false);
 
     expect(fn () => $command->run($input, new BufferedOutput()))
-        ->toThrow(\RuntimeException::class, 'Invalid credentials for the provided user.');
+        ->toThrow(ManuallyFailedException::class, 'Invalid credentials for the provided user.');
 });
 
 it('fails when both strict and optional attributes are present', function (): void {
@@ -91,5 +92,5 @@ it('fails when both strict and optional attributes are present', function (): vo
     $input->setInteractive(false);
 
     expect(fn () => $command->run($input, new BufferedOutput()))
-        ->toThrow(\RuntimeException::class, 'cannot declare both TinkerAuthStrict and TinkerAuthOptional');
+        ->toThrow(ManuallyFailedException::class, 'cannot declare both TinkerAuthStrict and TinkerAuthOptional');
 });
