@@ -6,6 +6,7 @@ namespace Joke2k\TinkerAuth;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use RuntimeException;
+use Symfony\Component\Console\Exception\InvalidArgumentException as ConsoleInvalidArgumentException;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,9 +21,26 @@ class TinkerSessionAuthenticator
     public function authenticate(InputInterface $input, OutputInterface $output): void
     {
         $mode = $this->authManager->resolveMode();
+        $identifierFromOption = $this->resolveUserOption($input);
 
         if ($mode === 'disabled') {
             return;
+        }
+
+        if ($identifierFromOption !== null) {
+            if (! $input->isInteractive()) {
+                throw new RuntimeException('Tinker Auth --user requires interactive input to prompt for password.');
+            }
+
+            $user = $this->promptForAuthenticatedUser($input, $output, 'strict', $identifierFromOption);
+
+            if ($user instanceof Authenticatable) {
+                $this->authManager->setActingUser($user);
+                $output->writeln('<info>Authenticated for this Tinker session.</info>');
+                return;
+            }
+
+            throw new RuntimeException('Unable to authenticate this Tinker session with the provided --user value.');
         }
 
         if (! $input->isInteractive()) {
@@ -48,7 +66,12 @@ class TinkerSessionAuthenticator
         }
     }
 
-    private function promptForAuthenticatedUser(InputInterface $input, OutputInterface $output, string $mode): ?Authenticatable
+    private function promptForAuthenticatedUser(
+        InputInterface $input,
+        OutputInterface $output,
+        string $mode,
+        ?string $fixedIdentifier = null
+    ): ?Authenticatable
     {
         $attempts = max(1, (int) config('tinker-auth.max_attempts', 3));
         $loginLabel = (string) config('tinker-auth.prompt.login_label', 'Login');
@@ -57,8 +80,12 @@ class TinkerSessionAuthenticator
         $helper = new QuestionHelper();
 
         for ($i = 1; $i <= $attempts; $i++) {
-            $loginQuestion = new Question($loginLabel.': ');
-            $identifier = trim((string) $helper->ask($input, $output, $loginQuestion));
+            $identifier = $fixedIdentifier;
+
+            if ($identifier === null) {
+                $loginQuestion = new Question($loginLabel.': ');
+                $identifier = trim((string) $helper->ask($input, $output, $loginQuestion));
+            }
 
             if ($identifier === '') {
                 if ($mode === 'optional') {
@@ -84,5 +111,22 @@ class TinkerSessionAuthenticator
         }
 
         return null;
+    }
+
+    private function resolveUserOption(InputInterface $input): ?string
+    {
+        try {
+            $value = $input->getOption('user');
+        } catch (ConsoleInvalidArgumentException) {
+            return null;
+        }
+
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        return $value !== '' ? $value : null;
     }
 }

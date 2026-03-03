@@ -8,6 +8,7 @@ Tinker Auth is a Laravel package that enforces or enables user authentication fo
   - `strict`: authentication is required.
   - `optional`: authentication is available but can be skipped.
   - `disabled`: no authentication is performed.
+- Tinker command supports `--user|-u` to prefill the login username.
 - Per-environment behavior through `.env` values.
 - Authenticated Tinker session sets the active Laravel user (`Auth::user()`).
 - Reusable command trait that adds:
@@ -68,6 +69,10 @@ TINKER_AUTH_MODE=strict
   - Non-interactive: continues without auth.
 - `disabled`
   - Always continues without auth.
+- `--user|-u <identifier>` (on `php artisan tinker`)
+  - Uses the identifier as login username.
+  - Always prompts for password.
+  - Behaves as strict authentication for that run.
 
 ## Command Trait Usage
 

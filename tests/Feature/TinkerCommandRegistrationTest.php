@@ -10,5 +10,6 @@ it('registers the package tinker command implementation', function (): void {
 
     $commands = Artisan::all();
 
-    expect($commands['tinker'] ?? null)->toBeInstanceOf(TinkerCommand::class);
+    expect($commands['tinker'] ?? null)->toBeInstanceOf(TinkerCommand::class)
+        ->and(($commands['tinker'] ?? null)?->getDefinition()->hasOption('user'))->toBeTrue();
 });

@@ -12,6 +12,7 @@ use Joke2k\TinkerAuth\Commands\TinkerCommand;
 use Joke2k\TinkerAuth\Support\CredentialValidator;
 use Joke2k\TinkerAuth\Support\UserResolver;
 use Laravel\Tinker\Console\TinkerCommand as BaseTinkerCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 class TinkerAuthServiceProvider extends ServiceProvider
 {
@@ -44,6 +45,17 @@ class TinkerAuthServiceProvider extends ServiceProvider
                     // Register this callback after all providers have registered their console callbacks.
                     ArtisanApplication::starting(function ($artisan): void {
                         $artisan->add($this->app->make(TinkerCommand::class));
+
+                        $tinker = $artisan->all()['tinker'] ?? null;
+
+                        if ($tinker !== null && ! $tinker->getDefinition()->hasOption('user')) {
+                            $tinker->getDefinition()->addOption(new InputOption(
+                                'user',
+                                'u',
+                                InputOption::VALUE_OPTIONAL,
+                                'Use this user identifier as login and prompt for password'
+                            ));
+                        }
                     });
                 });
 
