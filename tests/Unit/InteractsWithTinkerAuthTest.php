@@ -95,3 +95,31 @@ it('fails when both strict and optional attributes are present', function (): vo
     expect(fn (): int => $command->run($input, new BufferedOutput))
         ->toThrow(ManuallyFailedException::class, 'cannot declare both TinkerAuthStrict and TinkerAuthOptional');
 });
+
+it('fails when command auth mode config is invalid', function (): void {
+    config()->set('tinker-auth.command_trait.default_mode', 'disabled');
+
+    $command = new class extends \Illuminate\Console\Command
+    {
+        use \Joke2k\TinkerAuth\Concerns\InteractsWithTinkerAuth;
+
+        protected $signature = 'test:tinker-auth-aware-invalid-default-mode';
+
+        public function handle(): int
+        {
+            return self::SUCCESS;
+        }
+
+        protected function promptTinkerAuthPassword(): string
+        {
+            return 'secret-pass';
+        }
+    };
+    $command->setLaravel(app());
+
+    $input = new ArrayInput([]);
+    $input->setInteractive(false);
+
+    expect(fn (): int => $command->run($input, new BufferedOutput))
+        ->toThrow(ManuallyFailedException::class, 'Invalid Tinker Auth mode [disabled]. Expected one of: strict, optional.');
+});

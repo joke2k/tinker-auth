@@ -99,3 +99,26 @@ it('does not keep stale authentication failure between runs on the same command 
 
     expect($secondExitCode)->toBe(0);
 });
+
+it('fails gracefully when tinker auth mode config is invalid', function (): void {
+    config()->set('tinker-auth.mode', 'invalid');
+
+    $command = new class extends TinkerCommand
+    {
+        protected function runTinker(): int
+        {
+            return self::SUCCESS;
+        }
+    };
+
+    $command->setLaravel(app());
+
+    $input = new ArrayInput(['--execute' => '1 + 1']);
+    $input->setInteractive(false);
+
+    $output = new BufferedOutput;
+    $exitCode = $command->run($input, $output);
+
+    expect($exitCode)->toBe(1)
+        ->and($output->fetch())->toContain('Invalid Tinker Auth mode [invalid]. Expected one of: strict, optional, disabled.');
+});
