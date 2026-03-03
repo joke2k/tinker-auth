@@ -131,6 +131,24 @@ Command mode resolution:
 
 ## Testing
 
+Install dependencies including dev packages before running checks:
+
+```bash
+composer install
+```
+
+Run the automated checks:
+
 ```bash
 composer test
+composer analyse
+composer format:check
+composer rector:dry
+```
+
+Useful local maintenance commands:
+
+```bash
+composer format
+composer rector
 ```
