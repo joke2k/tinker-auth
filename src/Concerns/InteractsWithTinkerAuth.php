@@ -134,22 +134,25 @@ trait InteractsWithTinkerAuth
         if ($strict || $optional) {
             $mode = $strict ? 'strict' : 'optional';
 
-            if (property_exists($this, 'tinkerAuthMode')) {
-                $this->tinkerAuthMode = $mode;
+            if ($reflection->hasProperty('tinkerAuthMode')) {
+                $reflection->getProperty('tinkerAuthMode')->setValue($this, $mode);
             }
 
             return $mode;
         }
 
-        if (method_exists($this, 'tinkerAuthMode')) {
+        if ($reflection->hasMethod('tinkerAuthMode')) {
             /** @var mixed $mode */
-            $mode = $this->tinkerAuthMode();
+            $mode = $reflection->getMethod('tinkerAuthMode')->invoke($this);
 
             return is_string($mode) ? $mode : null;
         }
 
-        if (property_exists($this, 'tinkerAuthMode') && is_string($this->tinkerAuthMode)) {
-            return $this->tinkerAuthMode;
+        if ($reflection->hasProperty('tinkerAuthMode')) {
+            /** @var mixed $mode */
+            $mode = $reflection->getProperty('tinkerAuthMode')->getValue($this);
+
+            return is_string($mode) ? $mode : null;
         }
 
         return null;
