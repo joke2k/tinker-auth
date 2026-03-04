@@ -1,5 +1,9 @@
 # Tinker Auth
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/joke2k/tinker-auth.svg?style=flat-square)](https://packagist.org/packages/joke2k/tinker-auth)
+[![Total Downloads](https://img.shields.io/packagist/dt/joke2k/tinker-auth.svg?style=flat-square)](https://packagist.org/packages/joke2k/tinker-auth)
+[![License](https://img.shields.io/packagist/l/joke2k/tinker-auth.svg?style=flat-square)](https://packagist.org/packages/joke2k/tinker-auth)
+
 Tinker Auth is a Laravel package that enforces or enables user authentication for `php artisan tinker` sessions and provides a reusable command trait for command-level user context.
 
 ## Features
@@ -26,14 +30,45 @@ Tinker Auth is a Laravel package that enforces or enables user authentication fo
 
 ## Installation
 
-Install as a runtime dependency:
+1. Install the package:
 
 ```bash
 composer require joke2k/tinker-auth
+```
+
+2. Publish package configuration:
+
+```bash
 php artisan tinker-auth:install
 ```
 
-Optional (recommended for better interactive UX):
+Manual alternative:
+
+```bash
+php artisan vendor:publish --provider="Joke2k\TinkerAuth\TinkerAuthServiceProvider" --tag="tinker-auth-config"
+```
+
+3. Set your `.env` values (example):
+
+```env
+TINKER_AUTH_MODE=optional
+TINKER_AUTH_USERNAME_COLUMN=email
+TINKER_AUTH_GUARD=web
+TINKER_AUTH_MAX_ATTEMPTS=3
+```
+
+4. Run Tinker with authentication support:
+
+```bash
+# normal tinker flow (uses TINKER_AUTH_MODE)
+php artisan tinker
+
+# prefill login with --user / -u and prompt for password
+php artisan tinker --user=admin@example.com
+php artisan tinker -u admin@example.com
+```
+
+Optional (recommended) for better interactive prompts:
 
 ```bash
 composer require laravel/prompts
@@ -155,3 +190,7 @@ Useful local maintenance commands:
 composer format
 composer rector
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, coding standards, testing requirements, and PR expectations.
